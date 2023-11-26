@@ -1,7 +1,29 @@
 $(function(){
     getApi();
     $("#recipes").on("click", ".btn-danger", handleDelete)
+    $("#recipes").on("click", ".btn-warning", editRecipe)
     $("#addbtn").click(addRecipe)
+
+    $("#updatesafe").click(function (){
+        let id = $("#updateID").val();
+        let title = $("#updateTitle").val();
+        let body = $("#updateBody").val();
+        $.ajax({
+            url: "https://usman-fake-api.herokuapp.com/api/recipes/"+id,
+            method: "PUT",
+            data: {title, body},
+            error: function(response)
+            {
+                alert("API DELETE failed")
+            },
+            success: function(){
+                getApi()
+                alert("success")
+                $("#updateModal").modal("hide");
+
+            }
+        })
+    })
 });
 
 function handleDelete(){
@@ -17,9 +39,10 @@ function handleDelete(){
         },
         success: function(){
             getApi()
+            alert("Recipe deleted Successfully")
         }
     })
-    }
+}
 function getApi(){
     $.ajax({
         url: "https://usman-fake-api.herokuapp.com/api/recipes",
@@ -52,9 +75,23 @@ function addRecipe(){
         {
             alert("API POST failed")
         },
-        success: function(){
+        success: function(response){
             console.log(response)
+            alert("Recipe Added Successfully")
             getApi()
         }
+    })
+}
+
+function editRecipe(){
+    let btn = $(this);
+    let parentDiv = btn.closest(".recipe");
+    let id = parentDiv.attr("data-id");
+    
+    $.get("https://usman-fake-api.herokuapp.com/api/recipes/"+id, function(response) {
+        $("#updateID").val(response._id)
+        $("#updateTitle").val(response.title)
+        $("#updateBody").val(response.body)
+        $("#updateModal").modal("show");
     })
 }
